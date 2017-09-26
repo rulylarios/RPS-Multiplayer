@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+  <meta charset="UTF-8">
+  <title>RPS- Multiplayer</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script type="text/javascript" src="assets/javascript/game.js"></script>
+</head>
+
+<body>
+  <div class="page-header">
+    <h1>Rock Paper Scissors</h1>
+  </div>
+
+  <div id="name">
+    <div class="row">
+      <div class="col-md-3 col-md-offset-4">
+        <div class="input-group">
+
+          <input type="text" class="form-control" placeholder="Name" id="nameInput">
+
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="button" id="nameButton">Go!</button>
+          </span>  
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <br>
+    
+    <div id="instructions"></div>
+    
+    <div class="container-fluid">
+      <div class="row">
+        <div class="jumbotron col-md-4 col-md-offset-1" id="player1">
+          <h3></h3>
+        </div>
+        <div class="jumbotron col-md-4 col-md-offset-1" id="result">
+          <h1></h1>
+        </div>
+        <div class="jumbotron col-md-4 col-md-offset-1" id="player2">
+          <h3></h3>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-md-12 col-md-offset-3" id="chatBox">
+        <p></p>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-md-5 col-md-offset-3">
+        <div class="input-group">
+
+          <input type="text" class="form-control" placeholder="Write Here" id="chatInput">
+
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="button">Go!</button>
+          </span>  
+
+        </div>
+      </div>
+      <!-- /.row -->
+      <!-- <button id="click-button">Click Me!!!!</button> -->
+      <!-- JQuery -->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+      <!-- ================================================================================== -->
+      <!-- Firebase JavaScript Link -->
+      <script src="https://www.gstatic.com/firebasejs/4.4.0/firebase.js"></script>
+      <script>
+        // Initialize Firebase
+        // This is the code we copied and pasted from our app page
+        var config = {
+          apiKey: "AIzaSyCoK7yWbywZuCWtZN5nSeF89ia-E7lklx8",
+          authDomain: "rps-multiplayer-c950f.firebaseapp.com",
+          databaseURL: "https://rps-multiplayer-c950f.firebaseio.com",
+          projectId: "rps-multiplayer-c950f",
+          storageBucket: "rps-multiplayer-c950f.appspot.com",
+          messagingSenderId: "1041649227790"
+        };
+        firebase.initializeApp(config);
+
+
+        // Variables
+        // ================================================================================
+
+        // Get a reference to the database service
+        var database = firebase.database();
+
+        function reset(){
+          database.ref("/player1").set({
+              name: "Waiting for Player1"
+                //playerTwo: player2
+              })
+          database.ref("/player2").set({
+              name: "Waiting for Player2"
+                //playerTwo: player2
+              })
+
+
+        }
+
+        function waiting(){
+          database.ref("/player1").set({
+              name: "Waiting for other player"
+                //playerTwo: player2
+              })
+          database.ref("/player2").set({
+              name: "Waiting for other player"
+                //playerTwo: player2
+              })
+        }
+
+        
+        // Initializing our click count at 0
+        //var player1 = database.ref("/player1");
+
+        //var player2 = database.ref("/player2");
+
+        // connectionsRef references a specific location in our database.
+        // All of our connections will be stored in this directory.
+        var connectionsRef = database.ref("/connections");
+
+       var player1 = database.ref("/player1");
+       
+       var player2 = database.ref("/player2");
+
+       var playerDetermination = database.ref("/playerDetermination");
+// '.info/connected' is a special location provided by Firebase that is updated
+// every time the client's connection state changes.
+// '.info/connected' is a boolean value, true if the client is connected and false if they are not.
+      var connectedRef = database.ref(".info/connected");
+
+// When the client's connection state changes...
+      connectedRef.on("value", function(snap) {
+
+  // If they are connected..
+  if (snap.val()) {
+
+    // Add user to the connections list.
+    var con = connectionsRef.push(true);
+    // Remove user from the connection list when they disconnect.
+    con.onDisconnect().remove();
+  }
+});
+        // Functions        // ================================================================================
+connectionsRef.on("value", function(snap) {
+    
+    if(snap.numChildren() === 1){
+
+      reset();
+    
+    $("#nameButton").on("click", function() {
+       
+       event.preventDefault();
+       
+       name1 = $("#nameInput").val()
+       
+       database.ref("/player1").set({
+              name: name1
+                //playerTwo: player2
+              })
+
+       //$("#player1").html(name1)
+       $("#name").html("<p id='nameSubmission'>Hi " + name1 + " you are player 1</p>");
+    })
+  } else{
+    $("#nameButton").on("click", function() {
+       
+       event.preventDefault();
+       
+       name2 = $("#nameInput").val()
+       
+       database.ref("/player2").set({
+              name: name2
+                //playerTwo: player2
+              })
+
+       $("#name").html("<p id='nameSubmission'>Hi " + name2 + " you are player 2</p>");
+       //$("#player2").html(name2)
+    })
+
+  }
+  })
+
+player1.on("value", function(snap){
+  $("#player1").html(snap.val().name)
+
+})
+
+player2.on("value", function(snap){
+  $("#player2").html(snap.val().name)
+
+})
+
+
+        // On Click
+        /*$("#nameButton").on("click", function() {
+
+          if(playerDeterminati === true){
+
+            player1 = $("#nameInput").val()
+
+            playerDetermination = false;
+            
+            event.preventDefault();
+
+            database.ref("/player1").set({
+              name: player1
+                //playerTwo: player2
+              })
+
+            
+
+          }else{
+
+            event.preventDefault();
+
+            player2 = $("#nameInput").val()
+
+            database.ref("/player2").set({
+              name: player2
+              
+                //playerTwo: player2
+              })
+
+
+          }
+
+
+        });*/
+
+
+
+
+
+      </script>
+
+    </body>
+
+    </html>

@@ -1,0 +1,11 @@
+.jumbotron{
+	width: 20%;
+	text-align: center;
+}
+
+#chatBox{
+	width:41.5%;
+	height:150px;
+	background-color: green;
+}
+
